@@ -1,10 +1,10 @@
 package com.hotel.mgmt.web.rest.errors;
 
-public class EmailAlreadyUsedException extends BadRequestAlertException {
+public class EmailAlreadyUsedException extends EntityValidationException {
 
     private static final long serialVersionUID = 1L;
 
     public EmailAlreadyUsedException() {
-        super(ErrorConstants.EMAIL_ALREADY_USED_TYPE, "Email is already in use!", "userManagement", "emailexists");
+        super("Email is already used", "account", "usedEmail");
     }
 }

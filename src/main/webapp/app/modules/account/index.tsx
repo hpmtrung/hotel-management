@@ -1,15 +1,23 @@
+import ErrorBoundaryWrapper from 'app/components/error-boundary/ErrorBoundaryWrapper';
 import React from 'react';
+import { Route, Routes } from 'react-router';
+import AccountPageLayout from './AccountPageLayout';
+import AccountOrderDetailPage from './orders/AccountOrderDetailPage';
+import AccountOrdersPage from './orders/AccountOrdersPage';
+import Password from './password-change/PasswordChangePage';
+import Settings from './settings/AccountSettingsPage';
 
-import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
+const UserRoutes = () => {
+  return (
+    <Routes>
+      <Route element={<AccountPageLayout />}>
+        <Route path={'settings'} element={<ErrorBoundaryWrapper ele={<Settings />} />} />
+        <Route path={'orders'} element={<ErrorBoundaryWrapper ele={<AccountOrdersPage />} />} />
+        <Route path={'orders/:orderId'} element={<ErrorBoundaryWrapper ele={<AccountOrderDetailPage />} />} />
+        <Route path={'change-password'} element={<ErrorBoundaryWrapper ele={<Password />} />} />
+      </Route>
+    </Routes>
+  );
+};
 
-import Settings from './settings/settings';
-import Password from './password/password';
-
-const Routes = ({ match }) => (
-  <div>
-    <ErrorBoundaryRoute path={`${match.url}/settings`} component={Settings} />
-    <ErrorBoundaryRoute path={`${match.url}/password`} component={Password} />
-  </div>
-);
-
-export default Routes;
+export default UserRoutes;

@@ -1,6 +1,6 @@
 package com.hotel.mgmt.service;
 
-import com.hotel.mgmt.domain.User;
+import com.hotel.mgmt.domain.Account;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import javax.mail.MessagingException;
@@ -19,18 +19,15 @@ import tech.jhipster.config.JHipsterProperties;
 
 /**
  * Service for sending emails.
- * <p>
- * We use the {@link Async} annotation to send emails asynchronously.
+ *
+ * <p>We use the {@link Async} annotation to send emails asynchronously.
  */
 @Service
 public class MailService {
 
-    private final Logger log = LoggerFactory.getLogger(MailService.class);
-
     private static final String USER = "user";
-
     private static final String BASE_URL = "baseUrl";
-
+    private final Logger log = LoggerFactory.getLogger(MailService.class);
     private final JHipsterProperties jHipsterProperties;
 
     private final JavaMailSender javaMailSender;
@@ -78,34 +75,34 @@ public class MailService {
     }
 
     @Async
-    public void sendEmailFromTemplate(User user, String templateName, String titleKey) {
-        if (user.getEmail() == null) {
-            log.debug("Email doesn't exist for user '{}'", user.getLogin());
+    public void sendEmailFromTemplate(Account account, String templateName, String titleKey) {
+        if (account.getEmail() == null) {
+            log.debug("Email doesn't exist for account '{}'", account.getEmail());
             return;
         }
-        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        Locale locale = Locale.forLanguageTag(account.getLangKey());
         Context context = new Context(locale);
-        context.setVariable(USER, user);
+        context.setVariable(USER, account);
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, null, locale);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        sendEmail(account.getEmail(), subject, content, false, true);
     }
 
     @Async
-    public void sendActivationEmail(User user) {
-        log.debug("Sending activation email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/activationEmail", "email.activation.title");
+    public void sendActivationEmail(Account account) {
+        log.debug("Sending activation email to '{}'", account.getEmail());
+        sendEmailFromTemplate(account, "mail/activationEmail", "email.activation.title");
     }
 
     @Async
-    public void sendCreationEmail(User user) {
+    public void sendCreationEmail(Account user) {
         log.debug("Sending creation email to '{}'", user.getEmail());
         sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title");
     }
 
     @Async
-    public void sendPasswordResetMail(User user) {
+    public void sendPasswordResetMail(Account user) {
         log.debug("Sending password reset email to '{}'", user.getEmail());
         sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
     }

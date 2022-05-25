@@ -1,0 +1,35 @@
+.showcase {
+  position: relative;
+}
+
+.showcase__wrapper {
+  left: 0;
+  top: 0;
+  position: absolute;
+
+  height: 100%;
+  width: 100%;
+
+  overflow: hidden;
+}
+
+.showcase__video {
+  object-fit: cover;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.showcase__content {
+  left: 0;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}

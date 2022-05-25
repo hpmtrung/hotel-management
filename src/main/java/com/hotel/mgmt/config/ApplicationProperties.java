@@ -4,9 +4,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Properties specific to Hotelmgmt.
- * <p>
- * Properties are configured in the {@code application.yml} file.
- * See {@link tech.jhipster.config.JHipsterProperties} for a good example.
+ *
+ * <p>Properties are configured in the {@code application.yml} file. See {@link
+ * tech.jhipster.config.JHipsterProperties} for a good example.
  */
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
-public class ApplicationProperties {}
+public class ApplicationProperties {
+
+    private String hostName;
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+}

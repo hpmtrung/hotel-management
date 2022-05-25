@@ -7,7 +7,9 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +25,9 @@ import tech.jhipster.config.JHipsterProperties;
 @Component
 public class TokenProvider {
 
-    private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
-
     private static final String AUTHORITIES_KEY = "auth";
-
     private static final String INVALID_JWT_TOKEN = "Invalid JWT token.";
-
+    private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
     private final Key key;
 
     private final JwtParser jwtParser;
@@ -82,6 +81,18 @@ public class TokenProvider {
             .compact();
     }
 
+    public String createToken(String email, String authorities) {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+        return Jwts
+            .builder()
+            .setSubject(email)
+            .claim(AUTHORITIES_KEY, authorities)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact();
+    }
+
     public Authentication getAuthentication(String token) {
         Claims claims = jwtParser.parseClaimsJws(token).getBody();
 
@@ -117,7 +128,8 @@ public class TokenProvider {
             this.securityMetersService.trackTokenInvalidSignature();
 
             log.trace(INVALID_JWT_TOKEN, e);
-        } catch (IllegalArgumentException e) { // TODO: should we let it bubble (no catch), to avoid defensive programming and follow the fail-fast principle?
+        } catch (IllegalArgumentException e) { // TODO: should we let it bubble (no catch), to avoid defensive programming and
+            // follow the fail-fast principle?
             log.error("Token validation error {}", e.getMessage());
         }
 

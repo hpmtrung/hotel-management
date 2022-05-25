@@ -100,6 +100,7 @@ spring:
       dev:
         - dev
         - api-docs
+        - no-liquibase
         # Uncomment to activate TLS for the dev profile
         #- tls
   jmx:
@@ -129,8 +130,8 @@ spring:
     hibernate:
       ddl-auto: none
       naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   messages:
     basename: i18n/messages
   main:
@@ -160,11 +161,6 @@ server:
 
 springdoc:
   show-actuator: true
-
-# Properties to be exposed on the /info management endpoint
-info:
-  # Comma separated list of profiles that will trigger the ribbon to show
-  display-ribbon-on-profiles: 'dev'
 
 # ===================================================================
 # JHipster specific properties

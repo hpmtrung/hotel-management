@@ -1,31 +1,35 @@
-import { loadingBarReducer as loadingBar } from 'react-redux-loading-bar';
-
+import password from 'app/modules/account/password-change/password.reducer';
+import settings from 'app/modules/account/settings/account-settings.reducer';
+import dashboard from 'app/modules/administration/dashboard/dashboard.reducer';
+import orderManagement from 'app/modules/administration/order-management/admin-order.reducer';
+import accountManagement from 'app/modules/administration/user-management/account.reducer';
+import applicationProfile from 'app/modules/app-profile/application-profile';
+import activate from 'app/modules/auth/activate/activate.reducer';
+import authentication from 'app/modules/auth/authentication.reducer';
+import passwordReset from 'app/modules/auth/password-reset.reducer';
+import signUp from 'app/modules/auth/sign-up.reducer';
+import cart from 'app/modules/checkout/checkout.reducer';
+import userOrders from 'app/modules/account/orders/order.reducer';
+import header from './header';
 import locale from './locale';
-import authentication from './authentication';
-import applicationProfile from './application-profile';
-
-import administration from 'app/modules/administration/administration.reducer';
-import userManagement from 'app/modules/administration/user-management/user-management.reducer';
-import register from 'app/modules/account/register/register.reducer';
-import activate from 'app/modules/account/activate/activate.reducer';
-import password from 'app/modules/account/password/password.reducer';
-import settings from 'app/modules/account/settings/settings.reducer';
-import passwordReset from 'app/modules/account/password-reset/password-reset.reducer';
-/* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const rootReducer = {
   authentication,
   locale,
   applicationProfile,
-  administration,
-  userManagement,
-  register,
+  header,
+  signUp,
   activate,
   passwordReset,
   password,
+  cart,
+  // Account
   settings,
-  /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
-  loadingBar,
+  userOrders,
+  // Administrators
+  dashboard,
+  orderManagement,
+  accountManagement,
 };
 
 export default rootReducer;

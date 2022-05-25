@@ -1,48 +1,46 @@
-import React from 'react';
-import { Switch } from 'react-router-dom';
-import Loadable from 'react-loadable';
-
-import Login from 'app/modules/login/login';
-import Register from 'app/modules/account/register/register';
-import Activate from 'app/modules/account/activate/activate';
-import PasswordResetInit from 'app/modules/account/password-reset/init/password-reset-init';
-import PasswordResetFinish from 'app/modules/account/password-reset/finish/password-reset-finish';
-import Logout from 'app/modules/login/logout';
-import Home from 'app/modules/home/home';
-import Entities from 'app/entities';
-import PrivateRoute from 'app/shared/auth/private-route';
-import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
-import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
+import PageNotFound from 'app/layout/PageNotFound';
+import PasswordResetInit from 'app/modules/account/password-reset/init/PasswordResetInit';
+import ActivatePage from 'app/modules/auth/activate/ActivatePage';
+import PasswordResetFinish from 'app/modules/auth/PasswordResetFinishPage';
+import PrivateRoute from 'app/shared/private-route/PrivateRoute';
+import React from 'react';
+import Loadable from 'react-loadable';
+import { Route, Routes } from 'react-router-dom';
+import ErrorBoundaryWrapper from './components/error-boundary/ErrorBoundaryWrapper';
+import CheckoutPage from './modules/checkout/CheckoutPage';
+import Home from './modules/home/Home';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ 'app/modules/account'),
-  loading: () => <div>loading ...</div>,
+  loading: () => <div></div>,
 });
 
 const Admin = Loadable({
   loader: () => import(/* webpackChunkName: "administration" */ 'app/modules/administration'),
-  loading: () => <div>loading ...</div>,
+  loading: () => <div></div>,
 });
 
-const Routes = () => {
+const AppRoutes = () => {
   return (
-    <div className="view-routes">
-      <Switch>
-        <ErrorBoundaryRoute path="/login" component={Login} />
-        <ErrorBoundaryRoute path="/logout" component={Logout} />
-        <ErrorBoundaryRoute path="/account/register" component={Register} />
-        <ErrorBoundaryRoute path="/account/activate/:key?" component={Activate} />
-        <ErrorBoundaryRoute path="/account/reset/request" component={PasswordResetInit} />
-        <ErrorBoundaryRoute path="/account/reset/finish/:key?" component={PasswordResetFinish} />
-        <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
-        <PrivateRoute path="/account" component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
-        <ErrorBoundaryRoute path="/" exact component={Home} />
-        <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
-        <ErrorBoundaryRoute component={PageNotFound} />
-      </Switch>
-    </div>
+    <Routes>
+      <Route path="/" element={<ErrorBoundaryWrapper ele={<Home />} />} />
+      <Route path="/checkout" element={<ErrorBoundaryWrapper ele={<CheckoutPage />} />} />
+      <Route path="/activate" element={<ErrorBoundaryWrapper ele={<ActivatePage />} />} />
+      <Route path="/reset-password/request" element={<ErrorBoundaryWrapper ele={<PasswordResetInit />} />} />
+      <Route path="/reset-password/finish" element={<ErrorBoundaryWrapper ele={<PasswordResetFinish />} />} />
+      {/* Administrator's routes */}
+      <Route path="/admin" element={<PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]} />}>
+        <Route path="/admin/*" element={<Admin />} />
+      </Route>
+      {/* Authenticated user's routes */}
+      <Route path="/account" element={<PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />}>
+        <Route path="/account/*" element={<Account />} />
+      </Route>
+      {/* 404 Page */}
+      <Route path="*" element={<ErrorBoundaryWrapper ele={<PageNotFound />} />} />
+    </Routes>
   );
 };
 
-export default Routes;
+export default AppRoutes;

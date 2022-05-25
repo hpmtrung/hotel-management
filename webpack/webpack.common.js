@@ -61,7 +61,7 @@ module.exports = async options => {
       resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
         modules: ['node_modules'],
-        alias: utils.mapTypescriptAliasToWebpackAlias(),
+        alias: utils.mapTypescriptAliasToWebpackAlias({ '@mui/styled-engine': '@mui/styled-engine-sc' }),
         fallback: {
           path: require.resolve('path-browserify'),
         },
@@ -73,6 +73,11 @@ module.exports = async options => {
             use: getTsLoaderRule(options.env),
             include: [utils.root('./src/main/webapp/app')],
             exclude: [utils.root('node_modules')],
+          },
+          {
+            test: /\.svg$/i,
+            issuer: /\.[jt]sx?$/,
+            use: ['@svgr/webpack'],
           },
           /*
        ,
@@ -101,10 +106,6 @@ module.exports = async options => {
         },
       },
       plugins: [
-        new webpack.EnvironmentPlugin({
-          // react-jhipster requires LOG_LEVEL config.
-          LOG_LEVEL: development ? 'info' : 'error',
-        }),
         new webpack.DefinePlugin({
           I18N_HASH: JSON.stringify(languagesHash.hash),
           DEVELOPMENT: JSON.stringify(development),
@@ -125,8 +126,8 @@ module.exports = async options => {
             },
             { from: './node_modules/axios/dist/axios.min.js', to: 'swagger-ui/' },
             { from: './src/main/webapp/swagger-ui/', to: 'swagger-ui/' },
-            { from: './src/main/webapp/content/', to: 'content/' },
-            { from: './src/main/webapp/favicon.ico', to: 'favicon.ico' },
+            { from: './src/main/webapp/assets/', to: 'assets/' },
+            { from: './src/main/webapp/favicon/', to: 'favicon/' },
             { from: './src/main/webapp/manifest.webapp', to: 'manifest.webapp' },
             // jhipster-needle-add-assets-to-webpack - JHipster will add/remove third-party resources in this array
             { from: './src/main/webapp/robots.txt', to: 'robots.txt' },

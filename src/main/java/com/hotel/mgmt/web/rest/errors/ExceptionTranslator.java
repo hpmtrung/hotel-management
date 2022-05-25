@@ -21,11 +21,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.zalando.problem.DefaultProblem;
-import org.zalando.problem.Problem;
-import org.zalando.problem.ProblemBuilder;
-import org.zalando.problem.Status;
-import org.zalando.problem.StatusType;
+import org.zalando.problem.*;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.spring.web.advice.security.SecurityAdviceTrait;
 import org.zalando.problem.violations.ConstraintViolationProblem;
@@ -33,29 +29,28 @@ import tech.jhipster.config.JHipsterConstants;
 import tech.jhipster.web.util.HeaderUtil;
 
 /**
- * Controller advice to translate the server side exceptions to client-friendly json structures.
- * The error response follows RFC7807 - Problem Details for HTTP APIs (https://tools.ietf.org/html/rfc7807).
+ * Controller advice to translate the server side exceptions to client-friendly json structures. The
+ * error response follows RFC7807 - Problem Details for HTTP APIs
+ * (https://tools.ietf.org/html/rfc7807).
  */
 @ControllerAdvice
 public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait {
 
+    private static final String OBJECT_NAME_KEY = "objectName";
     private static final String FIELD_ERRORS_KEY = "fieldErrors";
     private static final String MESSAGE_KEY = "message";
     private static final String PATH_KEY = "path";
     private static final String VIOLATIONS_KEY = "violations";
+    private final Environment env;
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
-    private final Environment env;
 
     public ExceptionTranslator(Environment env) {
         this.env = env;
     }
 
-    /**
-     * Post-process the Problem payload to add the message key for the front-end if needed.
-     */
+    /** Post-process the Problem payload to add the message key for the front-end if needed. */
     @Override
     public ResponseEntity<Problem> process(@Nullable ResponseEntity<Problem> entity, NativeWebRequest request) {
         if (entity == null) {
@@ -82,6 +77,8 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         } else {
             builder.withCause(((DefaultProblem) problem).getCause()).withDetail(problem.getDetail()).withInstance(problem.getInstance());
             problem.getParameters().forEach(builder::with);
+
+            // Use pattern "error.http.[status code]" for error has an empty message
             if (!problem.getParameters().containsKey(MESSAGE_KEY) && problem.getStatus() != null) {
                 builder.with(MESSAGE_KEY, "error.http." + problem.getStatus().getStatusCode());
             }
@@ -91,59 +88,43 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @Override
     public ResponseEntity<Problem> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @Nonnull NativeWebRequest request) {
+        // Convert binding result to field error view model
         BindingResult result = ex.getBindingResult();
         List<FieldErrorVM> fieldErrors = result
             .getFieldErrors()
             .stream()
-            .map(f ->
-                new FieldErrorVM(
-                    f.getObjectName().replaceFirst("DTO$", ""),
-                    f.getField(),
-                    StringUtils.isNotBlank(f.getDefaultMessage()) ? f.getDefaultMessage() : f.getCode()
-                )
-            )
+            .map(f -> new FieldErrorVM(f.getField(), f.getCode()))
             .collect(Collectors.toList());
-
+        String objectName = result.getFieldErrors().get(0).getObjectName().replaceFirst("(VM)|(DTO)$", "");
         Problem problem = Problem
             .builder()
             .withType(ErrorConstants.CONSTRAINT_VIOLATION_TYPE)
-            .withTitle("Method argument not valid")
-            .withStatus(defaultConstraintViolationStatus())
+            .withTitle("Method argument is not valid")
+            .withStatus(Status.BAD_REQUEST)
             .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION)
+            .with(OBJECT_NAME_KEY, objectName)
             .with(FIELD_ERRORS_KEY, fieldErrors)
             .build();
         return create(ex, problem, request);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleEmailAlreadyUsedException(
-        com.hotel.mgmt.service.EmailAlreadyUsedException ex,
-        NativeWebRequest request
-    ) {
-        EmailAlreadyUsedException problem = new EmailAlreadyUsedException();
-        return create(
-            problem,
-            request,
-            HeaderUtil.createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
-        );
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleUsernameAlreadyUsedException(
-        com.hotel.mgmt.service.UsernameAlreadyUsedException ex,
-        NativeWebRequest request
-    ) {
-        LoginAlreadyUsedException problem = new LoginAlreadyUsedException();
-        return create(
-            problem,
-            request,
-            HeaderUtil.createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
-        );
-    }
+    // @ExceptionHandler
+    // public ResponseEntity<Problem> handleEmailAlreadyUsedException(
+    //     com.hotel.mgmt.service.exception.EmailAlreadyUsedException ex,
+    //     NativeWebRequest request
+    // ) {
+    //     EmailAlreadyUsedException problem = new EmailAlreadyUsedException();
+    //     return create(
+    //         problem,
+    //         request,
+    //         HeaderUtil.createFailureAlert(applicationName, true, problem.getEntityName(),
+    // problem.getErrorKey(), problem.getMessage())
+    //     );
+    // }
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleInvalidPasswordException(
-        com.hotel.mgmt.service.InvalidPasswordException ex,
+        com.hotel.mgmt.service.exception.InvalidPasswordServiceException ex,
         NativeWebRequest request
     ) {
         return create(new InvalidPasswordException(), request);
