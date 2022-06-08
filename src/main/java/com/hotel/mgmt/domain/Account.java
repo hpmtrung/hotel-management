@@ -15,7 +15,7 @@ import org.hibernate.annotations.NaturalId;
 
 @Entity
 @Table(name = "TAI_KHOAN")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Account implements Serializable {
 
     private static final long serialVersionUID = -3219819588454675156L;
@@ -58,17 +58,17 @@ public class Account implements Serializable {
     @Column(name = "MA_KICH_HOAT")
     private String activationKey;
 
-    @Column(name = "MA_DOI_MAT_KHAU")
+    @Column(name = "MA_DOI_MK")
     private String resetKey;
 
-    @Column(name = "NGAYGIO_YEU_CAU_DOI_MAT_KHAU")
+    @Column(name = "NGAYGIO_DOI_MK")
     private Instant resetDate;
 
     @Column(name = "NGON_NGU")
     private String langKey;
 
     @Size(max = 100)
-    @Column(name = "DUONG_DAN_HINH")
+    @Column(name = "HINH")
     private String imageURL;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -20,7 +20,8 @@ public class Employee implements Serializable {
     private Integer id;
 
     @OneToOne
-    @JoinColumn(name = "MA_TAI_KHOAN")
+    @JoinColumn(name = "MA_TAI_KHOAN") // Ton tai nhan vien khong co tai
+    // khoan, nen khong the de nullable = false
     private Account account;
 
     @Column(name = "LA_NAM")
